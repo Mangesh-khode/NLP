@@ -1,0 +1,23 @@
+def get_dict(data):
+    """
+    Input:
+    data: the data you want to pull from (a list of words or tokens)
+    
+    Output:
+    word2Ind: a dictionary mapping each word to its index
+    Ind2word: a dictionary mapping each index to its corresponding word
+    """
+    # Get unique words and sort them
+    words = sorted(set(data))
+    n = len(words)
+    
+    # Initialize dictionaries
+    word2Ind = {}
+    Ind2word = {}
+    
+    # Create mappings
+    for idx, word in enumerate(words):
+        word2Ind[word] = idx
+        Ind2word[idx] = word
+    
+    return word2Ind, Ind2word

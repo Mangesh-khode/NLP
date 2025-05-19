@@ -1,0 +1,98 @@
+import nltk
+from nltk.corpus import twitter_samples, stopwords
+import matplotlib.pyplot as plt
+import numpy as np
+import re
+import string
+from nltk.tokenize import TweetTokenizer
+from nltk.stem import PorterStemmer
+
+# Download necessary NLTK data
+nltk.download('twitter_samples')
+nltk.download('stopwords')
+
+# Load datasets
+all_positive_ttweets = twitter_samples.strings('positive_tweets.json')
+all_negative_tweets = twitter_samples.strings('negative_tweets.json')
+
+# Print some stats
+print("Number of positive tweets:", len(all_positive_tweets))
+print("Number of negative tweets:", len(all_negative_tweets))
+
+# Plot a pie chart
+fig = plt.figure(figsize=(5, 5))
+labels = 'Positives', 'Negatives'
+sizes = [len(all_positive_tweets), len(all_negative_tweets)]
+plt.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True, startangle=90)
+plt.axis('equal')
+plt.show()
+
+# Preprocess a sample tweet
+tweet = all_positive_tweets[2277]
+print("Original tweet:", tweet)
+
+# Clean tweet
+tweet2 = re.sub(r'^RT[\s]+', '', tweet)
+tweet2 = re.sub(r'https?:\/\/.*[\r\n]*', '', tweet2)
+tweet2 = re.sub(r'#', '', tweet2)
+print("Cleaned tweet:", tweet2)
+
+# Tokenize tweet
+tokenizer = TweetTokenizer(preserve_case=False, strip_handles=True, reduce_len=True)
+tweet_tokens = tokenizer.tokenize(tweet2)
+print('Tokenized string:')
+print(tweet_tokens)
+
+# Remove stop words and punctuation
+stopwords_english = stopwords.words('english')
+print("Stop words in English are:")
+print(stopwords_english)
+print("Total stop words:", len(stopwords_english))
+print("Punctuation in English are:")
+print(string.punctuation)
+
+tweet_clean = [word for word in tweet_tokens if word not in stopwords_english and word not in string.punctuation]
+print("Cleaned tokens:", tweet_clean)
+
+# Stem the words
+stemmer = PorterStemmer()
+tweet_stem = [stemmer.stem(word) for word in tweet_clean]
+print("Stemmed tweet:", tweet_stem)
+
+# Join the stemmed words
+tweet_stem = " ".join(tweet_stem)
+print("Processed tweet:", tweet_stem)
+
+# Define process_tweet function (missing in original code)
+def process_tweet(tweet):
+    tweet = re.sub(r'^RT[\s]+', '', tweet)
+    tweet = re.sub(r'https?:\/\/.*[\r\n]*', '', tweet)
+    tweet = re.sub(r'#', '', tweet)
+    tokenizer = TweetTokenizer(preserve_case=False, strip_handles=True, reduce_len=True)
+    tweet_tokens = tokenizer.tokenize(tweet)
+    stopwords_english = stopwords.words('english')
+    tweet_clean = [word for word in tweet_tokens if word not in stopwords_english and word not in string.punctuation]
+    stemmer = PorterStemmer()
+    tweet_stem = [stemmer.stem(word) for word in tweet_clean]
+    return tweet_stem
+
+# Define build_freqs function
+def build_freqs(tweets, ys):
+    yslist = np.squeeze(ys).tolist()
+    freqs = {}
+    for y, tweet in zip(yslist, tweets):
+        for word in process_tweet(tweet):
+            pair = (word, y)
+            if pair in freqs:
+                freqs[pair] += 1
+            else:
+                freqs[pair] = 1
+    return freqs
+    
+def lookup(freqs,word,label):
+    n=0
+    pair=(word,label)
+    if(pair in freqs):
+        n=freq(pair)
+    return n
+    
